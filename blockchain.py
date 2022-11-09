@@ -192,6 +192,25 @@ def get_chain():
     return json.dumps({"length": len(chain_data),
                        "chain": chain_data})
 
+@app.route('/addTransactions/<sender>/<reciver>/<ammount>', methods=['GET','POST'])
+def addTransactions(sender,reciver,ammount):
+    blockchain.add_new_transaction({
+        "sender" : sender,
+        "reciver" : reciver,
+        "ammount" : ammount        
+    })
+    return json.dumps({
+        "sender" : sender,
+        "reciver" : reciver,
+        "ammount" : ammount      
+    })
+
+@app.route('/mine', methods=['GET'])
+def mine():
+    responce = blockchain.mine()
+    return json.dumps({
+        "status":responce
+    })
 
 
 app.run(debug=True, port=5000)
