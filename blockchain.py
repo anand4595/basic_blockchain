@@ -1,6 +1,6 @@
 # libraries
 from hashlib import sha256
-from flask import Flask, request
+from flask import Flask, request, render_template
 import json
 import time
 
@@ -177,7 +177,7 @@ class Blockchain:
     
             proof = self.proof_of_work(new_block)
             self.add_block(new_block, proof)
-            self.unconfirmed_transactions = []
+            self.unconfirmed_transactions.clear()
             return new_block.index
 
 app =  Flask(__name__)
@@ -194,23 +194,23 @@ def get_chain():
 
 @app.route('/addTransactions/<sender>/<reciver>/<ammount>', methods=['GET','POST'])
 def addTransactions(sender,reciver,ammount):
-    blockchain.add_new_transaction({
+    transaction = {
         "sender" : sender,
         "reciver" : reciver,
-        "ammount" : ammount        
-    })
-    return json.dumps({
-        "sender" : sender,
-        "reciver" : reciver,
-        "ammount" : ammount      
-    })
+        "ammount" : ammount 
+    }
+    blockchain.add_new_transaction(transaction)
+    return render_template('addTransactions.html', 
+    sender = transaction['sender'],
+    reciver = transaction['reciver'],
+    ammount = transaction['ammount'])
 
 @app.route('/mine', methods=['GET'])
 def mine():
     responce = blockchain.mine()
-    return json.dumps({
-        "status":responce
-    })
+    if responce == False:
+        return render_template('mine.html',responce=False)
+    return render_template('mine.html',responce=True)
 
 
 app.run(debug=True, port=5000)
