@@ -20,7 +20,7 @@ class Block:
     previous_hash
         stores the hash of previous the node
     nounce :
-        used of meeting diffculty criteria. here we set it to 4("0000")   
+        used of meeting diffculty criteria. here we set it to 2("00")   
     
     Methods
     -------
@@ -184,13 +184,6 @@ app =  Flask(__name__)
 
 blockchain = Blockchain()
 
-@app.route('/chain', methods=['GET'])
-def get_chain():
-    chain_data = []
-    for block in blockchain.chain:
-        chain_data.append(block.__dict__)
-    return json.dumps({"length": len(chain_data),
-                       "chain": chain_data})
 
 @app.route('/addTransactions/<sender>/<reciver>/<ammount>', methods=['GET','POST'])
 def addTransactions(sender,reciver,ammount):
@@ -212,5 +205,27 @@ def mine():
         return render_template('mine.html',responce=False)
     return render_template('mine.html',responce=True)
 
+@app.route('/transactionpool', methods=['GET'])
+def transactionpool():
+    uncon = blockchain.unconfirmed_transactions
+    return render_template('transactionPool.html',uncon=uncon)
+
+@app.route('/chain', methods=['GET'])
+def chain():
+    chain = blockchain.chain
+    details = {
+        "Length" : len(chain),
+        "Difficulty" : blockchain.difficulty,
+        "Uncomformed Transactions" : len(blockchain.unconfirmed_transactions)
+    }
+    genesis = chain[0]
+    chain_ = blockchain.chain[0:]
+    return render_template('chain.html',details=details,genesis=genesis,chain_=chain_)
 
 app.run(debug=True, port=5000)
+
+
+# http://127.0.0.1:5000/mine
+# http://127.0.0.1:5000/addTransactions/himanshu/anand/200
+# http://127.0.0.1:5000/transactionpool
+# http://127.0.0.1:5000/chain
